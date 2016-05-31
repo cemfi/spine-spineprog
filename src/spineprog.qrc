@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/gfx">
+        <file>gfx/base_shield.png</file>
+        <file>gfx/spineprog-about.png</file>
+    </qresource>
+    <qresource prefix="/xml">
+        <file>xml/modules.xml</file>
+    </qresource>
+    <qresource prefix="/code">
+        <file>code/accelerometer.h</file>
+        <file>code/analog-generic.h</file>
+        <file>code/digital-generic.h</file>
+        <file>code/dummy.h</file>
+        <file>code/gps.h</file>
+        <file>code/imu-9dof.h</file>
+        <file>code/us-ranger.h</file>
+    </qresource>
+</RCC>
