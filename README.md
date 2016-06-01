@@ -9,7 +9,7 @@ The [SPINE] is a hardware/software solution to connect sensor modules to program
 
 ### Development Hints
 The `src` folder contains the source code. In order to add new modules, a new header file must be created in the `src/code` folder. The `dummy.h` can be used as a starting point.
-As of now, the freshly created file must be added to the list of copied files in the `codegen.cpp`. To display the new sensor correctly in the user interface, it has to be added to the `xml/modules.xml`.
+As of now, the freshly created file must be added to the list of copied files in the `codegen.cpp` as well as to the resource files. To display the new sensor correctly in the user interface, it has to be added to the `xml/modules.xml`.
 
 This procedure is soon to be simplified...
 
