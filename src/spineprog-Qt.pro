@@ -14,10 +14,16 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         spinewindow.cpp \
-    codegen.cpp
+    codegen.cpp \
+    SpineOSC.cpp \
+    hid.c
 
 HEADERS  += spinewindow.h \
-    codegen.h
+    codegen.h \
+    hidapi.h \
+    oscpkt.hh \
+    udp.hh \
+    SpineOSC.h
 
 FORMS    += spinewindow.ui
 
@@ -28,3 +34,10 @@ RC_ICONS = gfx/spine.ico
 
 RESOURCES += \
     spineprog.qrc
+
+LIBS += -framework CoreFoundation \
+	-framework Foundation
+	
+CONFIG += objective_c
+
+OBJECTIVE_SOURCES +=

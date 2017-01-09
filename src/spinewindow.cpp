@@ -15,7 +15,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+    along with SPINEprog.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -35,6 +35,8 @@
 #include <QMessageBox>
 #include <QToolBar>
 #include <QDesktopServices>
+#include <QDebug>
+#include "SpineOSC.h"
 
 SpineWindow::SpineWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -86,6 +88,8 @@ SpineWindow::SpineWindow(QWidget *parent) :
     connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(actionAbout()));
 
     statusBar()->hide();
+
+    SpineOSC::startHidOsc(this);
 }
 
 
@@ -99,7 +103,52 @@ void SpineWindow::actionAbout()
 
     QSplashScreen *splash = new QSplashScreen(QPixmap(":/gfx/gfx/spineprog-about.png"));
     splash->show();
+}
 
+
+void SpineWindow::update() {
+    //qDebug() << "update called";
+    setConfiguration(SpineOSC::settings);
+}
+
+void SpineWindow::setConfiguration(int settings[16])
+{
+    ui->comboBoxA0->setCurrentIndex(settings[0]);
+    ui->comboBoxA1->setCurrentIndex(settings[1]);
+    ui->comboBoxA2->setCurrentIndex(settings[2]);
+    ui->comboBoxA3->setCurrentIndex(settings[3]);
+    ui->comboBoxUART->setCurrentIndex(settings[4]);
+    ui->comboBoxD2->setCurrentIndex(settings[5]);
+    ui->comboBoxD3->setCurrentIndex(settings[6]);
+    ui->comboBoxD4->setCurrentIndex(settings[7]);
+    ui->comboBoxD5->setCurrentIndex(settings[8]);
+    ui->comboBoxD6->setCurrentIndex(settings[9]);
+    ui->comboBoxD7->setCurrentIndex(settings[10]);
+    ui->comboBoxD8->setCurrentIndex(settings[11]);
+    ui->comboBoxI2C1->setCurrentIndex(settings[12]);
+    ui->comboBoxI2C2->setCurrentIndex(settings[13]);
+    ui->comboBoxI2C3->setCurrentIndex(settings[14]);
+    ui->comboBoxI2C4->setCurrentIndex(settings[15]);
+}
+
+void SpineWindow::getCurrentConfiguration(int *parray)
+{
+    parray[0] = ui->comboBoxA0->currentIndex();
+    parray[1] = ui->comboBoxA1->currentIndex();
+    parray[2] = ui->comboBoxA2->currentIndex();
+    parray[3] = ui->comboBoxA3->currentIndex();
+    parray[4] = ui->comboBoxUART->currentIndex();
+    parray[5] = ui->comboBoxD2->currentIndex();
+    parray[6] = ui->comboBoxD3->currentIndex();
+    parray[7] = ui->comboBoxD4->currentIndex();
+    parray[8] = ui->comboBoxD5->currentIndex();
+    parray[9] = ui->comboBoxD6->currentIndex();
+    parray[10] = ui->comboBoxD7->currentIndex();
+    parray[11] = ui->comboBoxD8->currentIndex();
+    parray[12] = ui->comboBoxI2C1->currentIndex();
+    parray[13] = ui->comboBoxI2C2->currentIndex();
+    parray[14] = ui->comboBoxI2C3->currentIndex();
+    parray[15] = ui->comboBoxI2C4->currentIndex();
 }
 
 void SpineWindow::actionArduino()
@@ -181,15 +230,16 @@ void SpineWindow::actionClipboard()
     codegen->deviceUart = ui->comboBoxUART->currentText();
 
     QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(codegen->makePatcher());
+    int port = ui->portLineEdit->text().toInt();
+    clipboard->setText(codegen->makePatcher(port));
 }
 
 void SpineWindow::setupCombo(QComboBox * combo, QVarLengthArray<QString> names)
 {
-   combo->addItem("No Device");
+   //combo->insertItem(0, "No Device");
    int i;
    for (i = 0; i < names.size(); i++) {
-       combo->addItem(names[i]);
+       combo->insertItem(i + 1, names[i]);
    }
 }
 
@@ -243,6 +293,8 @@ void SpineWindow::programClicked()
     codegen->deviceI2c4 = ui->comboBoxI2C4->currentText();
 
     codegen->deviceUart = ui->comboBoxUART->currentText();
+
+    getCurrentConfiguration(&codegen->configuration[0]);
 
     codegen->generateCode();
 
@@ -327,4 +379,13 @@ void SpineWindow::finished(int, QProcess::ExitStatus)
     ui->textBrowser->append("done!");
     ui->progressBar->setMinimum(0);
     ui->progressBar->setMaximum(100);
+}
+
+void SpineWindow::on_portLineEdit_textChanged(const QString &arg1)
+{
+    bool ok = true;
+    int port = arg1.toInt(&ok);
+    if (ok) {
+        SpineOSC::setPort(port);
+    }
 }

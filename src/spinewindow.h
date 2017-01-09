@@ -40,6 +40,8 @@ class SpineWindow : public QMainWindow
 public:
     explicit SpineWindow(QWidget *parent = 0);
     ~SpineWindow();
+    void setConfiguration(int settings[]);
+    void getCurrentConfiguration(int *parray); // expects int array with 16 entries
 
 private:
     Ui::SpineWindow *ui;
@@ -61,6 +63,8 @@ private slots:
     void actionPath();
     void actionDocumentation();
     void actionAbout();
+    void on_portLineEdit_textChanged(const QString &arg1);
+    void update();
 };
 
 #endif // SPINEWINDOW_H

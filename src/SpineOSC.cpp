@@ -1,35 +1,47 @@
-// SpineOSC.cpp : Defines the entry point for the application.
-//
+// Copyright 2017 Aristotelis Hadjakos
+// Contact: thadjakos@gmail.com
 
-#include "stdafx.h"
+/*
+    This file is part of SPINEprog.
+
+    SPINEprog is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    SPINEprog is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with SPINEprog.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "SpineOSC.h"
+#include <QtGlobal>
+#include <QThread>
+#include <QDebug>
+
+
+
 #include "hidapi.h"
 #include <stdio.h>
 #include "udp.hh"
 #include "oscpkt.hh"
 using namespace oscpkt;
 
-
-#define MAX_LOADSTRING 100
-
-// Global Variables:
-HINSTANCE hInst;								// current instance
-TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
-TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
-
-// Forward declarations of functions included in this code module:
-ATOM				MyRegisterClass(HINSTANCE hInstance);
-BOOL				InitInstance(HINSTANCE, int);
-LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
+#include "spinewindow.h"
+#include <QApplication>
+#include <QObject>
 
 
+int SpineOSC::port = 9876;
+HIDThread *SpineOSC::gThread = 0;
+bool SpineOSC::portChanged = false;
+int SpineOSC::settings[16];
 
-/// spine code
-bool shouldRun;
-hid_device *handle = NULL;
-
-void openHID()
+void HIDThread::openHID()
 {
 	handle = hid_open(0x2341, 0x8036, NULL);
 	if (!handle) {
@@ -38,33 +50,70 @@ void openHID()
 	hid_set_nonblocking(handle, 1);
 }
 
-void sendOSC(float value,int connector, int channel)
+
+void SpineOSC::setPort(int portnumber) {
+    SpineOSC::port = portnumber;
+    SpineOSC::portChanged = true;
+}
+
+void SpineOSC::sendOSC(float value, int connector, int channel)
 {
 	static UdpSocket *sock = NULL;
-	if (!sock || !sock->isOk()) {
-		const int PORT_NUM = 9876;
+    if (!sock || !sock->isOk() || SpineOSC::portChanged) {
+        if (sock) {
+            sock->close();
+            delete sock;
+        }
+
 		sock = new UdpSocket;
-		sock->connectTo("localhost", PORT_NUM);
+        sock->connectTo("localhost", port);
+        SpineOSC::portChanged = false;
 	}
 	if (sock->isOk()) {
 		Message msg("/spine");
 		msg.pushInt32(connector);
-		msg.pushInt32(channel);
+        if (channel != 0) {
+            msg.pushInt32(channel);
+        }
 		msg.pushFloat(value);
 		PacketWriter pw;
-		//pw.startBundle().startBundle().addMessage(msg).endBundle().endBundle();
 		pw.addMessage(msg);
 		sock->sendPacket(pw.packetData(), pw.packetSize());
 	}
 }
 
 
-DWORD run(LPVOID lpdwThreadParam)
+
+
+void HIDThread::initSettings() {
+    int i;
+    for (i = 0; i < 16; i++) {
+        SpineOSC::settings[i] = 0;
+        receivedSetting[i] = false;
+    }
+}
+
+bool HIDThread::allSettingsReceived() {
+        int i;
+        for (i = 0; i < 16; i++) {
+            if (receivedSetting[i] == false) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+void HIDThread::run()
 {
+    initSettings();
+
 	shouldRun = true;
 
-	double last_value[12];
-	int message_id[12];
+    int connector_id[10];
+    int channel_id[10];
+    double last_value[10];
+
 
 	while (shouldRun) {
 		int numMessages = 0;
@@ -73,29 +122,27 @@ DWORD run(LPVOID lpdwThreadParam)
 		if (!handle) {
 			openHID();
 			if (!handle) {
-				//[NSThread sleepForTimeInterval : 0.1];
-				Sleep(100);
+                QThread::usleep(100);
+                initSettings();
+                settingsWereSent = false;
 			}
 		}
 		if (handle) {
-			//hid_write(handle, "hello", 6);
-			//NSLog(@"open");
 			unsigned char buf[256];
 			memset(buf, 0, sizeof(buf));
 			buf[0] = 0x3;
 			int res = hid_read(handle, buf, sizeof(buf));
 			if (res == 0) {
 				// waiting
+                QThread::usleep(10);
 			}
 			else if (res < 0) {
 				// unable to read
 				hid_close(handle);
 				handle = NULL;
-				//[NSThread sleepForTimeInterval:0.1];
 			}
 			else {
 				// OK
-				//NSLog(@"%d, %d", res, buf[0]);
 				if ((res == 62) && (buf[0] == 3)) {
 					union {
 						float fvalue;
@@ -107,13 +154,14 @@ DWORD run(LPVOID lpdwThreadParam)
 
 					int i;
 					for (i = 0; i < numMessages; i++) {
-						// third byte: 5 bits value id (1F - no compund), 3 bits slot-ID
-						message_id[i] = buf[2 + 5 * i];
-						fbConversion.bvalue[0] = buf[3 + 5 * i];
-						fbConversion.bvalue[1] = buf[4 + 5 * i];
-						fbConversion.bvalue[2] = buf[5 + 5 * i];
-						fbConversion.bvalue[3] = buf[6 + 5 * i];
-						last_value[i] = fbConversion.fvalue;
+                        // third byte: 5 bits value id (1F - no compund), 3 bits slot-ID
+                        connector_id[i] = buf[2 + 6 * i];
+                        channel_id[i] = buf[3 + 6 * i];
+                        fbConversion.bvalue[0] = buf[4 + 6 * i];
+                        fbConversion.bvalue[1] = buf[5 + 6 * i];
+                        fbConversion.bvalue[2] = buf[6 + 6 * i];
+                        fbConversion.bvalue[3] = buf[7 + 6 * i];
+                        last_value[i] = fbConversion.fvalue;
 					}
 				}
 			}
@@ -121,202 +169,30 @@ DWORD run(LPVOID lpdwThreadParam)
 		int i;
 		for (i = 0; i < numMessages; i++) {
 			float value = last_value[i];
-			int connector = message_id[i] & 0x7;
-			int channel = (message_id[i] >> 3) & 0x1F;
-
-			/*dispatch_async(dispatch_get_main_queue(), ^{
-
-				[self.delegate receivedValue:value connector : connector channel : channel spineID : spineID];
-			});*/
-			wchar_t str[256];
-			swprintf(str, 256, L"%d, %d, %f\n", connector, channel, value);
-			sendOSC(value, connector, channel);
-			OutputDebugString(str);
+            int connector = connector_id[i];
+            int channel = channel_id[i];
+            if (connector != 255) {
+                SpineOSC::sendOSC(value, connector, channel);
+            }
+            else {
+                SpineOSC::settings[channel] = value;
+                receivedSetting[channel] = true;
+                if (!settingsWereSent && allSettingsReceived()) {
+                    emit signal();
+                    settingsWereSent = true;
+                }
+            }
 		}
 	}
-	return 0;
-}
-
-/// end spine code
-
-int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPTSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
-{
-	UNREFERENCED_PARAMETER(hPrevInstance);
-	UNREFERENCED_PARAMETER(lpCmdLine);
-
- 	// TODO: Place code here.
-	MSG msg;
-	HACCEL hAccelTable;
-
-	// Initialize global strings
-	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-	LoadString(hInstance, IDC_SPINEOSC, szWindowClass, MAX_LOADSTRING);
-	MyRegisterClass(hInstance);
-
-	// Perform application initialization:
-	if (!InitInstance (hInstance, nCmdShow))
-	{
-		return FALSE;
-	}
-
-	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_SPINEOSC));
-	OutputDebugString(L"starting spine");
-
-	DWORD dwThreadId;
-	CreateThread(
-		NULL,
-		0,
-		(LPTHREAD_START_ROUTINE)&run,
-		NULL,
-		0,
-		&dwThreadId);
-
-	OutputDebugString(L"spine stopped");
-
-	// Main message loop:
-	while (GetMessage(&msg, NULL, 0, 0))
-	{
-		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-	}
-
-	return (int) msg.wParam;
 }
 
 
 
-//
-//  FUNCTION: MyRegisterClass()
-//
-//  PURPOSE: Registers the window class.
-//
-ATOM MyRegisterClass(HINSTANCE hInstance)
-{
-	WNDCLASSEX wcex;
-
-	wcex.cbSize = sizeof(WNDCLASSEX);
-
-	wcex.style			= CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc	= WndProc;
-	wcex.cbClsExtra		= 0;
-	wcex.cbWndExtra		= 0;
-	wcex.hInstance		= hInstance;
-	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SPINEOSC));
-	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
-	wcex.lpszMenuName   = 0;//MAKEINTRESOURCE(IDC_SPINEOSC);
-	wcex.lpszClassName	= szWindowClass;
-	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
-
-	return RegisterClassEx(&wcex);
+void SpineOSC::startHidOsc(SpineWindow *win) {
+    if (gThread == NULL) {
+        gThread = new HIDThread();
+        QObject::connect(gThread, SIGNAL(signal()), win, SLOT(update()));
+        gThread->start();
+    }
 }
 
-//
-//   FUNCTION: InitInstance(HINSTANCE, int)
-//
-//   PURPOSE: Saves instance handle and creates main window
-//
-//   COMMENTS:
-//
-//        In this function, we save the instance handle in a global variable and
-//        create and display the main program window.
-//
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
-{
-   HWND hWnd;
-
-   hInst = hInstance; // Store instance handle in our global variable
-
-   hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPED | \
-	   WS_CAPTION | \
-	   WS_SYSMENU | \
-	   WS_MINIMIZEBOX,
-	   CW_USEDEFAULT, CW_USEDEFAULT, 400, 200, NULL, NULL, hInstance, NULL);
-
-   if (!hWnd)
-   {
-      return FALSE;
-   }
-
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
-
-   return TRUE;
-}
-
-//
-//  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
-//
-//  PURPOSE:  Processes messages for the main window.
-//
-//  WM_COMMAND	- process the application menu
-//  WM_PAINT	- Paint the main window
-//  WM_DESTROY	- post a quit message and return
-//
-//
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	int wmId, wmEvent;
-	PAINTSTRUCT ps;
-	HDC hdc;
-	wchar_t *text = NULL;
-
-	switch (message)
-	{
-	case WM_COMMAND:
-		wmId    = LOWORD(wParam);
-		wmEvent = HIWORD(wParam);
-		// Parse the menu selections:
-		switch (wmId)
-		{
-		case IDM_ABOUT:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-			break;
-		case IDM_EXIT:
-			DestroyWindow(hWnd);
-			break;
-		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
-		}
-		break;
-	case WM_PAINT:
-		hdc = BeginPaint(hWnd, &ps);
-		// TODO: Add any drawing code here...
-		text = L"Sending /spine OSC messages to port 9876";
-		TextOut(hdc, 50, 40, text, wcslen(text));
-		EndPaint(hWnd, &ps);
-		break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
-	}
-	return 0;
-}
-
-// Message handler for about box.
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	UNREFERENCED_PARAMETER(lParam);
-	switch (message)
-	{
-	case WM_INITDIALOG:
-		return (INT_PTR)TRUE;
-
-	case WM_COMMAND:
-		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-		{
-			EndDialog(hDlg, LOWORD(wParam));
-			return (INT_PTR)TRUE;
-		}
-		break;
-	}
-	return (INT_PTR)FALSE;
-}

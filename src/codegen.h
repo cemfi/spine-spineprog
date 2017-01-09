@@ -51,12 +51,14 @@ public:
         deviceI2c1, deviceI2c2, deviceI2c3, deviceI2c4,
         deviceUart;
 
+    int configuration[16];
+
     QVarLengthArray<QString> analogSensors();
     QVarLengthArray<QString> digitalSensors();
     QVarLengthArray<QString> i2cSensors();
     QVarLengthArray<QString> uartSensors();
 
-    QString makePatcher();
+    QString makePatcher(int port);
     void copySketchTo(const QString& dest);
     QTemporaryDir *getTemporaryDir();
 
@@ -67,7 +69,7 @@ private:
     void generateSetup(QTextStream& stream, const char *spacename, const QString& deviceName);
     void generateLoop(QTextStream& stream, const char *spacename, const QString& deviceName);
     bool isDevice(const QString& name);
-    QString buildPatcher(QVarLengthArray<int> connectors, QVarLengthArray<Module> modules);
+    QString buildPatcher(int port, QVarLengthArray<int> connectors, QVarLengthArray<Module> modules);
     QJsonArray *boxesArray;
     QJsonArray *linesArray;
     int maxX;

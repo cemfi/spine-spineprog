@@ -293,8 +293,33 @@ void Codegen::generateCode()
     generateLoop(stream, "ConI2C4", deviceI2c4);
 
     generateLoop(stream, "ConUART", deviceUart);
+    stream << "    sendInfo();" << endl;
     stream << "    Spine.flush();" << endl;
     stream << "}" << endl << endl;
+
+
+    stream << "void sendInfo() {" << endl;
+    stream << "  static unsigned long lastTime = millis();" << endl;
+    stream << "  if (millis() - lastTime > 500) {" << endl;
+    stream << "    Spine.write(255, 0, " << configuration[0] << ");" << endl;
+    stream << "    Spine.write(255, 1, " << configuration[1] << ");" << endl;
+    stream << "    Spine.write(255, 2, " << configuration[2] << ");" << endl;
+    stream << "    Spine.write(255, 3, " << configuration[3] << ");" << endl;
+    stream << "    Spine.write(255, 4, " << configuration[4] << ");" << endl;
+    stream << "    Spine.write(255, 5, " << configuration[5] << ");" << endl;
+    stream << "    Spine.write(255, 6, " << configuration[6] << ");" << endl;
+    stream << "    Spine.write(255, 7, " << configuration[7] << ");" << endl;
+    stream << "    Spine.write(255, 8, " << configuration[8] << ");" << endl;
+    stream << "    Spine.write(255, 9, " << configuration[9] << ");" << endl;
+    stream << "    Spine.write(255, 10, " << configuration[10] << ");" << endl;
+    stream << "    Spine.write(255, 11, " << configuration[11] << ");" << endl;
+    stream << "    Spine.write(255, 12, " << configuration[12] << ");" << endl;
+    stream << "    Spine.write(255, 13, " << configuration[13] << ");" << endl;
+    stream << "    Spine.write(255, 14, " << configuration[14] << ");" << endl;
+    stream << "    Spine.write(255, 15, " << configuration[15] << ");" << endl;
+    stream << "    lastTime = millis();" << endl;
+    stream << "  }" << endl;
+    stream << "}" << endl;
 
     inoFile.close();
 }
@@ -315,7 +340,7 @@ Module Codegen::moduleForName(const QString& name)
     return Module();
 }
 
-QString Codegen::makePatcher()
+QString Codegen::makePatcher(int port)
 {
     QVarLengthArray<int> connectors;
     QVarLengthArray<Module> usedModules;
@@ -388,10 +413,10 @@ QString Codegen::makePatcher()
         connectors.append(16);
     }
 
-    return buildPatcher(connectors, usedModules);
+    return buildPatcher(port, connectors, usedModules);
 }
 
-QString Codegen::buildPatcher(QVarLengthArray<int> connectors, QVarLengthArray<Module> usedModules)
+QString Codegen::buildPatcher(int port, QVarLengthArray<int> connectors, QVarLengthArray<Module> usedModules)
 {
     boxesArray = new QJsonArray();
     linesArray = new QJsonArray();
@@ -406,19 +431,21 @@ QString Codegen::buildPatcher(QVarLengthArray<int> connectors, QVarLengthArray<M
         types.append(usedModules[i].type);
     }
 
+    QString udpreceive = "udpreceive ";
+    udpreceive.append(QString::asprintf("%d", port));
     QJsonObject box;
     QJsonObject boxEntry;
     boxEntry["maxclass"] = "newobj";
-    boxEntry["text"] = "spine";
+    boxEntry["text"] = udpreceive;
     boxEntry["fontname"] = "Arial";
     QJsonArray patchingRect;
     patchingRect.append(32.0);
     patchingRect.append(30.0);
-    patchingRect.append(180.0);
+    patchingRect.append(80.0);
     patchingRect.append(20.0);
     boxEntry["patching_rect"] = patchingRect;
     boxEntry["numinlets"] =  1;
-    boxEntry["id"] = "spine";
+    boxEntry["id"] = "udpreceive";
     boxEntry["fontsize"] = 12.0;
     boxEntry["numoutlets"] = 1;
     QJsonArray outlettype;
@@ -426,35 +453,74 @@ QString Codegen::buildPatcher(QVarLengthArray<int> connectors, QVarLengthArray<M
     box["box"] = boxEntry;
     boxesArray->append(box);
 
+    boxEntry["maxclass"] = "newobj";
+    boxEntry["text"] = "route /spine";
+    boxEntry["fontname"] = "Arial";
+    patchingRect = QJsonArray();
+    patchingRect.append(32.0);
+    patchingRect.append(70.0);
+    patchingRect.append(80.0);
+    patchingRect.append(20.0);
+    boxEntry["patching_rect"] = patchingRect;
+    boxEntry["numinlets"] =  2;
+    boxEntry["id"] = "firstroute";
+    boxEntry["fontsize"] = 12.0;
+    boxEntry["numoutlets"] = 2;
+    boxEntry["outlettype"] = outlettype;
+    box["box"] = boxEntry;
+    boxesArray->append(box);
+
+    boxEntry["maxclass"] = "newobj";
+    boxEntry["text"] = "route 1 2 3 4 5 6 7 8 9 10 11 12";
+    boxEntry["fontname"] = "Arial";
+    patchingRect = QJsonArray();
+    patchingRect.append(32.0);
+    patchingRect.append(110.0);
+    patchingRect.append(80.0);
+    patchingRect.append(20.0);
+    boxEntry["patching_rect"] = patchingRect;
+    boxEntry["numinlets"] =  2;
+    boxEntry["id"] = "secondroute";
+    boxEntry["fontsize"] = 12.0;
+    boxEntry["numoutlets"] = 12;
+    boxEntry["outlettype"] = outlettype;
+    box["box"] = boxEntry;
+    boxesArray->append(box);
+
+    connect("udpreceive", 0, "firstroute", 0);
+    connect("firstroute", 0, "secondroute", 0);
+
+
+
     int numSensors = connectors.size();
     int horizontalDisplacement = 0;
     int horizontalDisplacementLevel2 = 0;
     for (int i = 1; i <= numSensors; i++) {
         if (channels[i - 1] == 1) {
-            makeComment(32 + horizontalDisplacement, 100 - 14, names[i - 1]);
+            makeComment(32 + horizontalDisplacement, 170 - 14, names[i - 1]);
             if (QString::compare(types[i - 1], "digital", Qt::CaseInsensitive) != 0) {
-                makeFlonum(QString("flonum-%1").arg(i), 32 + horizontalDisplacement, 100);
-                connect("spine", connectors[i - 1] - 1, QString("flonum-%1").arg(i), 0);
+                makeFlonum(QString("flonum-%1").arg(i), 32 + horizontalDisplacement, 170);
+                connect("secondroute", connectors[i - 1] - 1, QString("flonum-%1").arg(i), 0);
             }
             else {
-                makeToggle(QString("toggle-%1").arg(i), 32 + horizontalDisplacement, 100);
-                connect("spine", connectors[i - 1] - 1, QString("toggle-%1").arg(i), 0);
+                makeToggle(QString("toggle-%1").arg(i), 32 + horizontalDisplacement, 170);
+                connect("secondroute", connectors[i - 1] - 1, QString("toggle-%1").arg(i), 0);
             }
             horizontalDisplacement += 60;
         } else {
-            makeComment(32 + horizontalDisplacement, 100 - 14, names[i - 1]);
-            makeSelect(QString("sub-route-%1").arg(i), 32 + horizontalDisplacement, 100, channels[i - 1]);
-            connect("spine", connectors[i - 1] - 1, QString("sub-route-%1").arg(i), 0);
+            makeComment(32 + horizontalDisplacement, 170 - 14, names[i - 1]);
+            makeSelect(QString("sub-route-%1").arg(i), 32 + horizontalDisplacement, 170, channels[i - 1]);
+            connect("secondroute", connectors[i - 1] - 1, QString("sub-route-%1").arg(i), 0);
             horizontalDisplacement += sizeOfSelect(channels[i - 1]) + 10;
             for (int j = 1; j <= channels[i - 1]; j++) {
                 if (QString::compare(types[i - 1], "digital", Qt::CaseInsensitive) != 0) {
                     QString flonumID = QString("flonum-%1-%2").arg(i, j);
-                    makeFlonum(flonumID, 32 + horizontalDisplacementLevel2, 170);
+                    makeFlonum(flonumID, 32 + horizontalDisplacementLevel2, 240);
                     connect(QString("sub-route-%1").arg(i), j - 1, flonumID, 0);
                 }
                 else {
                     QString toggleID = QString("toggle-%1-%2").arg(i, j);
-                    makeToggle(toggleID, 32 + horizontalDisplacementLevel2, 170);
+                    makeToggle(toggleID, 32 + horizontalDisplacementLevel2, 240);
                     connect(QString("sub-route-%1").arg(i), j - 1, toggleID, 0);
                 }
                 horizontalDisplacementLevel2 += 60;
