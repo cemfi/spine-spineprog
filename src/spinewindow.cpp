@@ -36,7 +36,7 @@
 #include <QToolBar>
 #include <QDesktopServices>
 #include <QDebug>
-#include "SpineOSC.h"
+#include "spineosc.h"
 
 SpineWindow::SpineWindow(QWidget *parent) :
     QMainWindow(parent),

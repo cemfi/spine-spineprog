@@ -177,8 +177,12 @@ struct UdpSocket {
   std::string localHostName() const { 
     /* this stuff is not very nice but this is what liblo does in order to
        find out a sensible name for the local host */
-    char hostname_buf[512]; 
+    char hostname_buf[512];
+#ifdef WIN32
+    if (gethostname(hostname_buf, sizeof hostname_buf) != 0)
+#else
     if (gethostbyname2(hostname_buf, sizeof hostname_buf) != 0)
+#endif
       hostname_buf[0] = 0;
     hostname_buf[sizeof hostname_buf - 1] = 0;
     struct hostent * host = gethostbyname(hostname_buf);

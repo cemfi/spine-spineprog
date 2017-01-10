@@ -21,7 +21,7 @@
 
 #include "spinewindow.h"
 #include <QApplication>
-#include "SpineOSC.h"
+#include "spineosc.h"
 
 int main(int argc, char *argv[])
 {

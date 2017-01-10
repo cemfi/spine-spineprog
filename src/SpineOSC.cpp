@@ -18,7 +18,7 @@
     along with SPINEprog.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "SpineOSC.h"
+#include "spineosc.h"
 #include <QtGlobal>
 #include <QThread>
 #include <QDebug>
