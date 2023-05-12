@@ -29,6 +29,8 @@
 #include <QJSonDocument>
 #include <QDebug>
 
+using namespace Qt;
+
 Codegen::Codegen()
 {
     loadModules();
