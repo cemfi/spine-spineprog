@@ -42,6 +42,6 @@ macx {
 }
 
 win32|win64 {
-    LIBS += setupapi.lib
+    LIBS += -lWS2_32 -lsetupapi
     SOURCES += win32/hid.c
 }
