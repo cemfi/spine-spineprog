@@ -15,6 +15,8 @@ SOURCES += main.cpp \
            spinewindow.cpp \
            codegen.cpp \
            spineosc.cpp \
+           windows/hidapi_descriptor_reconstruct.c \
+           windows/hidapi_descriptor_reconstruct.c
 
 HEADERS += spinewindow.h \
            codegen.h \
@@ -22,7 +24,13 @@ HEADERS += spinewindow.h \
            hidapi_darwin.h \
            oscpkt.hh \
            udp.hh \
-           spineosc.h
+           spineosc.h \
+           hidapi_cfgmgr32.h \
+           hidapi_descriptor_reconstruct.h \
+           hidapi_hidclass.h \
+           hidapi_hidpi.h \
+           hidapi_hidsdi.h \
+           hidapi_winapi.h
 
 FORMS   += spinewindow.ui
 
@@ -40,10 +48,10 @@ macx {
     LIBS += -framework CoreFoundation \
             -framework Foundation
     CONFIG += objective_c
-    SOURCES += macx/hid.c
+    SOURCES += mac/hid.c
 }
 
 win32|win64 {
     LIBS += -lWS2_32 -lsetupapi
-    SOURCES += win32/hid.c
+    SOURCES += windows/hid.c
 }
