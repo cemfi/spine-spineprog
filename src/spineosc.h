@@ -18,7 +18,6 @@
     along with SPINEprog.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef SPINEOSC_H
 #define SPINEOSC_H
 
@@ -27,6 +26,8 @@
 #include <QObject>
 #include "hidapi.h"
 
+#define SEND_VALUES 0
+#define SEND_INFO 1
 
 class HIDThread : public QThread {
     Q_OBJECT
@@ -35,17 +36,13 @@ protected:
     void run();
 
 private:
-    void initSettings();
-    bool allSettingsReceived();
-    bool settingsWereSent = false;
-    bool receivedSetting[16];
+    void processBuffer(unsigned char *buf, int bytesRead);
     bool shouldRun;
     hid_device *handle = NULL;
     void openHID();
 
 signals:
     void signal();
-
 };
 
 class SpineOSC {
@@ -53,9 +50,11 @@ public:
     static int port;
     static void startHidOsc(SpineWindow *win);
     static void setPort(int number);
-    static int settings[16];
     static void initialize();
-    static void sendOSC(float value, int connector, int channel);
+    static void sendOSC(int connector);
+    static QString paths[16];
+    static QVector<float> values[16];
+    static QString connectorToText(int connector);
 
 private:
     static HIDThread *gThread;

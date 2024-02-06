@@ -51,6 +51,7 @@ public:
         deviceI2c1, deviceI2c2, deviceI2c3, deviceI2c4,
         deviceUart;
 
+
     int configuration[16];
 
     QVarLengthArray<QString> analogSensors();

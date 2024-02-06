@@ -19,13 +19,15 @@ SOURCES += main.cpp \
 HEADERS += spinewindow.h \
            codegen.h \
            hidapi.h \
+           hidapi_darwin.h \
            oscpkt.hh \
            udp.hh \
            spineosc.h
 
 FORMS   += spinewindow.ui
 
-DISTFILES += modules.xml
+DISTFILES += modules.xml \
+    enumerate_hid.py
 
 ICON = gfx/spine.icns
 

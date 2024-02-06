@@ -31,6 +31,8 @@
 
 using namespace Qt;
 
+#include "spineosc.h"
+
 Codegen::Codegen()
 {
     loadModules();
@@ -191,13 +193,8 @@ void Codegen::generateInclude(QTextStream& stream, const char *spacename, const 
         return;
     }
 
-    stream << "namespace " << spacename << "{" << endl;
-    stream << "    inline void write(float value) {" << endl;
-    stream << "        ::Spine.write(" << connector << ", 0, value);" << endl;
-    stream << "    }" << endl;
-    stream << "    inline void write(int channel, float value) {" << endl;
-    stream << "        ::Spine.write(" << connector << ", channel, value);" << endl;
-    stream << "    }" << endl;
+    stream << "namespace " << spacename << " {" << endl;
+    stream << "    uint8_t connector = " << connector << ";" << endl;
     stream << "    uint8_t PIN_A = " << pinA << ";" << endl;
     stream << "    uint8_t PIN_B = " << pinB << ";" << endl;
     stream << "    #include \"" << toInclude << "\"" << endl;
@@ -207,6 +204,8 @@ void Codegen::generateInclude(QTextStream& stream, const char *spacename, const 
 void Codegen::generateSetup(QTextStream& stream, const char *spacename, const QString& deviceName)
 {
     if (QString::compare(deviceName, QString("No Device"), Qt::CaseInsensitive) != 0) {
+        QString sn = moduleForName(deviceName).shortname.replace(" ", "-");
+        stream << "    " << "Spine.configSensor(" << spacename << "::connector, \"" << sn << "\", \"f\");";
         stream << "    " << spacename << "::setup();" << endl;
     }
 }
@@ -248,10 +247,9 @@ void Codegen::generateCode()
 
     generateInclude(stream, "ConUART", deviceUart, 16, 0, 1);
 
-
     // setup
     stream << "void setup() {" << endl;
-    stream << "    Spine.begin(1);" << endl;
+    stream << "    Spine.begin();" << endl;
     generateSetup(stream, "ConA0", deviceA0);
     generateSetup(stream, "ConA1", deviceA1);
     generateSetup(stream, "ConA2", deviceA2);
@@ -272,7 +270,6 @@ void Codegen::generateCode()
 
     generateSetup(stream, "ConUART", deviceUart);
     stream << "}" << endl << endl;
-
 
     // loop
     stream << "void loop() {" << endl;
@@ -295,33 +292,16 @@ void Codegen::generateCode()
     generateLoop(stream, "ConI2C4", deviceI2c4);
 
     generateLoop(stream, "ConUART", deviceUart);
-    stream << "    sendInfo();" << endl;
-    stream << "    Spine.flush();" << endl;
+    stream << "    wait10ms();" << endl;
     stream << "}" << endl << endl;
 
-
-    stream << "void sendInfo() {" << endl;
-    stream << "  static unsigned long lastTime = millis();" << endl;
-    stream << "  if (millis() - lastTime > 500) {" << endl;
-    stream << "    Spine.write(255, 0, " << configuration[0] << ");" << endl;
-    stream << "    Spine.write(255, 1, " << configuration[1] << ");" << endl;
-    stream << "    Spine.write(255, 2, " << configuration[2] << ");" << endl;
-    stream << "    Spine.write(255, 3, " << configuration[3] << ");" << endl;
-    stream << "    Spine.write(255, 4, " << configuration[4] << ");" << endl;
-    stream << "    Spine.write(255, 5, " << configuration[5] << ");" << endl;
-    stream << "    Spine.write(255, 6, " << configuration[6] << ");" << endl;
-    stream << "    Spine.write(255, 7, " << configuration[7] << ");" << endl;
-    stream << "    Spine.write(255, 8, " << configuration[8] << ");" << endl;
-    stream << "    Spine.write(255, 9, " << configuration[9] << ");" << endl;
-    stream << "    Spine.write(255, 10, " << configuration[10] << ");" << endl;
-    stream << "    Spine.write(255, 11, " << configuration[11] << ");" << endl;
-    stream << "    Spine.write(255, 12, " << configuration[12] << ");" << endl;
-    stream << "    Spine.write(255, 13, " << configuration[13] << ");" << endl;
-    stream << "    Spine.write(255, 14, " << configuration[14] << ");" << endl;
-    stream << "    Spine.write(255, 15, " << configuration[15] << ");" << endl;
-    stream << "    lastTime = millis();" << endl;
+    stream << "void wait10ms() {" << endl;
+    stream << "  static unsigned long lastMillis = millis();" << endl;
+    stream << "  unsigned long elapsed = millis() - lastMillis;" << endl;
+    stream << "  if (elapsed < 10) {" << endl;
+    stream << "      delay(10 - elapsed);" << endl;
     stream << "  }" << endl;
-    stream << "}" << endl;
+    stream << "}" << endl << endl;
 
     inoFile.close();
 }
@@ -456,7 +436,7 @@ QString Codegen::buildPatcher(int port, QVarLengthArray<int> connectors, QVarLen
     boxesArray->append(box);
 
     boxEntry["maxclass"] = "newobj";
-    boxEntry["text"] = "route /spine";
+    boxEntry["text"] = "regexp /spine/ @substitute \" \"";
     boxEntry["fontname"] = "Arial";
     patchingRect = QJsonArray();
     patchingRect.append(32.0);
@@ -473,7 +453,15 @@ QString Codegen::buildPatcher(int port, QVarLengthArray<int> connectors, QVarLen
     boxesArray->append(box);
 
     boxEntry["maxclass"] = "newobj";
-    boxEntry["text"] = "route 1 2 3 4 5 6 7 8 9 10 11 12";
+    QString routeText = "route ";
+    for (int i = 0; i < usedModules.size(); i++) {
+        QString target = "";
+        target.append(SpineOSC::connectorToText(connectors[i]));
+        target.append(usedModules[i].shortname);
+        routeText.append(target);
+        routeText.append(" ");
+    }
+    boxEntry["text"] = routeText.toUtf8().constData();
     boxEntry["fontname"] = "Arial";
     patchingRect = QJsonArray();
     patchingRect.append(32.0);
@@ -484,15 +472,13 @@ QString Codegen::buildPatcher(int port, QVarLengthArray<int> connectors, QVarLen
     boxEntry["numinlets"] =  2;
     boxEntry["id"] = "secondroute";
     boxEntry["fontsize"] = 12.0;
-    boxEntry["numoutlets"] = 12;
+    boxEntry["numoutlets"] = usedModules.size() + 1;
     boxEntry["outlettype"] = outlettype;
     box["box"] = boxEntry;
     boxesArray->append(box);
 
     connect("udpreceive", 0, "firstroute", 0);
     connect("firstroute", 0, "secondroute", 0);
-
-
 
     int numSensors = connectors.size();
     int horizontalDisplacement = 0;
@@ -512,16 +498,16 @@ QString Codegen::buildPatcher(int port, QVarLengthArray<int> connectors, QVarLen
         } else {
             makeComment(32 + horizontalDisplacement, 170 - 14, names[i - 1]);
             makeSelect(QString("sub-route-%1").arg(i), 32 + horizontalDisplacement, 170, channels[i - 1]);
-            connect("secondroute", connectors[i - 1] - 1, QString("sub-route-%1").arg(i), 0);
+            connect("secondroute", i - 1, QString("sub-route-%1").arg(i), 0);
             horizontalDisplacement += sizeOfSelect(channels[i - 1]) + 10;
             for (int j = 1; j <= channels[i - 1]; j++) {
                 if (QString::compare(types[i - 1], "digital", Qt::CaseInsensitive) != 0) {
-                    QString flonumID = QString("flonum-%1-%2").arg(i, j);
+                    QString flonumID = QString("flonum-%1-%2").arg(i).arg(j);
                     makeFlonum(flonumID, 32 + horizontalDisplacementLevel2, 240);
                     connect(QString("sub-route-%1").arg(i), j - 1, flonumID, 0);
                 }
                 else {
-                    QString toggleID = QString("toggle-%1-%2").arg(i, j);
+                    QString toggleID = QString("toggle-%1-%2").arg(i).arg(j);
                     makeToggle(toggleID, 32 + horizontalDisplacementLevel2, 240);
                     connect(QString("sub-route-%1").arg(i), j - 1, toggleID, 0);
                 }
@@ -572,9 +558,9 @@ void Codegen::connect(const QString& id1, int outlet, const QString& id2, int in
 }
 
 void Codegen::makeSelect(const QString& id, int x, int y, int numOutlets) {
-    QString routeString = QString("route ");
+    QString routeString = QString("unpack ");
     for (int i = 1; i <= numOutlets; i++) {
-        routeString = routeString.append(" %1").arg(i);
+        routeString = routeString.append(" 0.");
     }
     QJsonObject boxElement;
     boxElement["maxclass"] = "newobj";

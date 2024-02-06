@@ -63,9 +63,9 @@ void loop()
                 Serial.println();
                 */
                 
-                write(1, bufferToFloat(commaIndices[0] + 1, commaIndices[1] - commaIndices[0]));
-                write(2, bufferToFloat(commaIndices[2] + 1, commaIndices[3] - commaIndices[2]));
-                write(3, bufferToFloat(commaIndices[4] + 1, commaIndices[5] - commaIndices[4]));
+                Spine.write(connector, 0, bufferToFloat(commaIndices[0] + 1, commaIndices[1] - commaIndices[0]));
+                Spine.write(connector, 1, bufferToFloat(commaIndices[2] + 1, commaIndices[3] - commaIndices[2]));
+                Spine.write(connector, 2, bufferToFloat(commaIndices[4] + 1, commaIndices[5] - commaIndices[4]));
               }             
               count = 0;
             }

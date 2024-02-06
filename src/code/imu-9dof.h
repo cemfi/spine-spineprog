@@ -91,15 +91,15 @@ void loop()
   Serial.print(", ");
   Serial.print(Mxyz[2], 2);
 */
-  write(1, Axyz[0]);
-  write(2, Axyz[1]);
-  write(3, Axyz[2]);
-  write(4, Gxyz[0]);
-  write(5, Gxyz[1]);
-  write(6, Gxyz[2]);
-  write(7, Mxyz[0]);
-  write(8, Mxyz[1]);
-  write(9, Mxyz[2]);
+  Spine.write(connector, 0, Axyz[0]);
+  Spine.write(connector, 1, Axyz[1]);
+  Spine.write(connector, 2, Axyz[2]);
+  Spine.write(connector, 3, Gxyz[0]);
+  Spine.write(connector, 4, Gxyz[1]);
+  Spine.write(connector, 5, Gxyz[2]);
+  Spine.write(connector, 6, Mxyz[0]);
+  Spine.write(connector, 7, Mxyz[1]);
+  Spine.write(connector, 8, Mxyz[2]);
 
 }	
 

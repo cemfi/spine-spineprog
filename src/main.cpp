@@ -22,6 +22,8 @@
 #include "spinewindow.h"
 #include <QApplication>
 #include "spineosc.h"
+#include "hidapi.h"
+
 
 int main(int argc, char *argv[])
 {

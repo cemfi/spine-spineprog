@@ -35,158 +35,155 @@ using namespace oscpkt;
 #include <QApplication>
 #include <QObject>
 
-
 int SpineOSC::port = 9876;
 HIDThread *SpineOSC::gThread = 0;
 bool SpineOSC::portChanged = false;
-int SpineOSC::settings[16];
+QString SpineOSC::paths[16];
+QVector<float> SpineOSC::values[16];
 
 void HIDThread::openHID()
 {
-	handle = hid_open(0x2341, 0x8036, NULL);
-	if (!handle) {
-		return;
-	}
-	hid_set_nonblocking(handle, 1);
+    handle = hid_open(0x2341, 0x8036, NULL);
+    if (!handle) {
+        return;
+    }
+    hid_set_nonblocking(handle, 1);
 }
-
 
 void SpineOSC::setPort(int portnumber) {
     SpineOSC::port = portnumber;
     SpineOSC::portChanged = true;
 }
 
-void SpineOSC::sendOSC(float value, int connector, int channel)
+void SpineOSC::sendOSC(int connector)
 {
-	static UdpSocket *sock = NULL;
+    static UdpSocket *sock = NULL;
     if (!sock || !sock->isOk() || SpineOSC::portChanged) {
         if (sock) {
             sock->close();
             delete sock;
         }
 
-		sock = new UdpSocket;
+        sock = new UdpSocket;
         sock->connectTo("localhost", port);
         SpineOSC::portChanged = false;
-	}
-	if (sock->isOk()) {
-		Message msg("/spine");
-		msg.pushInt32(connector);
-        if (channel != 0) {
-            msg.pushInt32(channel);
+    }
+    if (sock->isOk()) {
+        QString path = "/spine/";
+        path = path + connectorToText(connector) + paths[connector];
+        Message msg(path.toUtf8().constData());
+        for (float value : SpineOSC::values[connector]) {
+            msg.pushFloat(value);
         }
-		msg.pushFloat(value);
-		PacketWriter pw;
-		pw.addMessage(msg);
-		sock->sendPacket(pw.packetData(), pw.packetSize());
-	}
-}
 
-
-
-
-void HIDThread::initSettings() {
-    int i;
-    for (i = 0; i < 16; i++) {
-        SpineOSC::settings[i] = 0;
-        receivedSetting[i] = false;
+        PacketWriter pw;
+        pw.addMessage(msg);
+        sock->sendPacket(pw.packetData(), pw.packetSize());
     }
 }
 
-bool HIDThread::allSettingsReceived() {
-        int i;
-        for (i = 0; i < 16; i++) {
-            if (receivedSetting[i] == false) {
-                return false;
+QString SpineOSC::connectorToText(int connector)
+{
+    if (connector == 1) return QString("A0-");
+    if (connector == 2) return QString("A1-");
+    if (connector == 3) return QString("A2-");
+    if (connector == 4) return QString("A3-");
+
+    if (connector == 5) return QString("D2-");
+    if (connector == 6) return QString("D3-");
+    if (connector == 7) return QString("D4-");
+    if (connector == 8) return QString("D5-");
+    if (connector == 9) return QString("D6-");
+    if (connector == 10) return QString("D7-");
+    if (connector == 11) return QString("D8-");
+
+    if (connector >= 12 and connector <= 15) return QString("I2C-");
+
+    if (connector == 16) return QString("UART-");
+
+    return "";
+}
+
+void HIDThread::processBuffer(unsigned char *buf, int bytesRead)
+{
+    if (buf[1] == SEND_INFO) {
+        qDebug() << "buf[0] =" << buf[0] << "buf[1..12] =" << buf[1] << buf[2] << buf[3] << buf[4] << buf[5] << buf[6] << buf[7] << buf[8] << buf[9] << buf[10] << buf[11] << buf[12] ;
+
+        int connector = buf[2];
+        QString shortName = QString::fromUtf8(buf + 3);
+        QString format = QString::fromUtf8(buf + 3 + shortName.size() + 1); // +1 to skip the null terminator
+
+        SpineOSC::paths[connector] = shortName;
+        if (SpineOSC::values[connector].size() != format.length()) {
+            SpineOSC::values[connector] = QVector<float>(format.length());
+        }
+
+        qDebug() << "SEND_INFO: " << "connector =" << connector << ", shortName =" << shortName << ", format =" << format;
+    }
+    else if (buf[1] == SEND_VALUES) {
+        const int NUM_MESSAGES = 10;
+        QSet<int> connectors;
+        for (int i=0; i < NUM_MESSAGES; i++) {
+            int connector = buf[2 + 6 * i];
+            int valueId = buf[3 + 6 * i];
+            union {
+                float fvalue;
+                unsigned char bvalue[4];
+            } fbConversion;
+            fbConversion.bvalue[0] = buf[4 + 6 * i];
+            fbConversion.bvalue[1] = buf[5 + 6 * i];
+            fbConversion.bvalue[2] = buf[6 + 6 * i];
+            fbConversion.bvalue[3] = buf[7 + 6 * i];
+            // qDebug() << "connector =" << connector << ", valueId =" << valueId << ", value =" << fbConversion.fvalue;
+            if (SpineOSC::values[connector].size() > valueId) {
+                SpineOSC::values[connector][valueId] = fbConversion.fvalue;
+                connectors.insert(connector);
             }
         }
-        return true;
+        for (int connector : connectors) {
+            SpineOSC::sendOSC(connector);
+        }
     }
-
+}
 
 void HIDThread::run()
 {
-    initSettings();
-
-	shouldRun = true;
-
-    int connector_id[10];
-    int channel_id[10];
-    double last_value[10];
-
-
-	while (shouldRun) {
-		int numMessages = 0;
-		int spineID = 0;
-
-		if (!handle) {
-			openHID();
-			if (!handle) {
+    shouldRun = true;
+    while (shouldRun) {
+        if (!handle) {
+            openHID();
+            if (!handle) {
                 QThread::usleep(100);
-                initSettings();
-                settingsWereSent = false;
-			}
-		}
-		if (handle) {
-			unsigned char buf[256];
-			memset(buf, 0, sizeof(buf));
-			buf[0] = 0x3;
-			int res = hid_read(handle, buf, sizeof(buf));
-			if (res == 0) {
-				// waiting
+            }
+        }
+        if (handle) {
+            unsigned char buf[256];
+            memset(buf, 0, sizeof(buf));
+            buf[0] = 0x3;
+            int res = hid_read(handle, buf, sizeof(buf));
+            if (res == 0) {
+                // waiting
                 QThread::usleep(10);
-			}
-			else if (res < 0) {
-				// unable to read
-				hid_close(handle);
-				handle = NULL;
-			}
-			else {
-				// OK
-				if ((res == 62) && (buf[0] == 3)) {
-					union {
-						float fvalue;
-						unsigned char bvalue[4];
-					} fbConversion;
-
-					numMessages = buf[1] >> 4;
-					spineID = buf[1] & 0xF;
-
-					int i;
-					for (i = 0; i < numMessages; i++) {
-                        // third byte: 5 bits value id (1F - no compund), 3 bits slot-ID
-                        connector_id[i] = buf[2 + 6 * i];
-                        channel_id[i] = buf[3 + 6 * i];
-                        fbConversion.bvalue[0] = buf[4 + 6 * i];
-                        fbConversion.bvalue[1] = buf[5 + 6 * i];
-                        fbConversion.bvalue[2] = buf[6 + 6 * i];
-                        fbConversion.bvalue[3] = buf[7 + 6 * i];
-                        last_value[i] = fbConversion.fvalue;
-					}
-				}
-			}
-		}
-		int i;
-		for (i = 0; i < numMessages; i++) {
-			float value = last_value[i];
-            int connector = connector_id[i];
-            int channel = channel_id[i];
-            if (connector != 255) {
-                SpineOSC::sendOSC(value, connector, channel);
+            }
+            else if (res < 0) {
+                // unable to read
+                hid_close(handle);
+                handle = NULL;
             }
             else {
-                SpineOSC::settings[channel] = value;
-                receivedSetting[channel] = true;
-                if (!settingsWereSent && allSettingsReceived()) {
-                    emit signal();
-                    settingsWereSent = true;
+                // OK
+                if (buf[0] == 3) {
+                    processBuffer(buf, res);
                 }
             }
-		}
-	}
+        }
+    }
 }
 
-
+void update()
+{
+    // Nothing to do
+}
 
 void SpineOSC::startHidOsc(SpineWindow *win) {
     if (gThread == NULL) {

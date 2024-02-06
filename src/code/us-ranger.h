@@ -9,5 +9,5 @@ void loop() {
   digitalWrite(PIN_A, LOW);
   pinMode(PIN_A, INPUT);
   long distance = pulseIn(PIN_A, HIGH) / 29 / 2;
-  write(distance);
+  Spine.write(connector, 0, distance);
 }

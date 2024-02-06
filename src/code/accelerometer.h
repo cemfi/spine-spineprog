@@ -66,12 +66,12 @@ void loop()
   float ax,ay,az;
   getAcceleration(&ax,&ay,&az);
   
-  write(0, ax);
+  Spine.write(connector, 0, ax);
   //Serial.println(ax);
   
-  write(1, ay);
+  Spine.write(connector, 1, ay);
   //Serial.println(ay);
   
-  write(2, az);
-  Serial.println(az);
+  Spine.write(connector, 2, az);
+  //Serial.println(az);
 }

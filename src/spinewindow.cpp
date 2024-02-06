@@ -105,10 +105,9 @@ void SpineWindow::actionAbout()
     splash->show();
 }
 
-
 void SpineWindow::update() {
     //qDebug() << "update called";
-    setConfiguration(SpineOSC::settings);
+    //setConfiguration(SpineOSC::settings);
 }
 
 void SpineWindow::setConfiguration(int settings[16])

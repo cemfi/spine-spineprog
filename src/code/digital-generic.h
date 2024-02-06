@@ -4,5 +4,5 @@ void setup()
 
 void loop()
 {
-    write(digitalRead(PIN_A));
+    Spine.write(connector, 0, digitalRead(PIN_A));
 }
