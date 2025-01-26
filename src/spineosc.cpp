@@ -107,7 +107,7 @@ QString SpineOSC::connectorToText(int connector)
 void HIDThread::processBuffer(unsigned char *buf, int bytesRead)
 {
     if (buf[1] == SEND_INFO) {
-        qDebug() << "buf[0] =" << buf[0] << "buf[1..12] =" << buf[1] << buf[2] << buf[3] << buf[4] << buf[5] << buf[6] << buf[7] << buf[8] << buf[9] << buf[10] << buf[11] << buf[12] ;
+        // qDebug() << "buf[0] =" << buf[0] << "buf[1..12] =" << buf[1] << buf[2] << buf[3] << buf[4] << buf[5] << buf[6] << buf[7] << buf[8] << buf[9] << buf[10] << buf[11] << buf[12] ;
 
         int connector = buf[2];
         QString shortName = QString::fromUtf8(buf + 3);
@@ -118,7 +118,7 @@ void HIDThread::processBuffer(unsigned char *buf, int bytesRead)
             SpineOSC::values[connector] = QVector<float>(format.length());
         }
 
-        qDebug() << "SEND_INFO: " << "connector =" << connector << ", shortName =" << shortName << ", format =" << format;
+        // qDebug() << "SEND_INFO: " << "connector =" << connector << ", shortName =" << shortName << ", format =" << format;
     }
     else if (buf[1] == SEND_VALUES) {
         const int NUM_MESSAGES = 10;

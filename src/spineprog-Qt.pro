@@ -14,9 +14,7 @@ TEMPLATE = app
 SOURCES += main.cpp \
            spinewindow.cpp \
            codegen.cpp \
-           spineosc.cpp \
-           windows/hidapi_descriptor_reconstruct.c \
-           windows/hidapi_descriptor_reconstruct.c
+           spineosc.cpp
 
 HEADERS += spinewindow.h \
            codegen.h \
@@ -53,5 +51,6 @@ macx {
 
 win32|win64 {
     LIBS += -lWS2_32 -lsetupapi
-    SOURCES += windows/hid.c
+    SOURCES += windows/hid.c \
+        windows/hidapi_descriptor_reconstruct.c
 }
