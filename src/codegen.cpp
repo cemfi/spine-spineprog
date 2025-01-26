@@ -51,7 +51,7 @@ Codegen::Codegen()
     QFile::copy(":/code/code/us-ranger.h",       temporaryDir->path() + "/spine-sketch/us-ranger.h");
     QFile::copy(":/code/code/Spine.h",           temporaryDir->path() + "/spine-sketch/Spine.h");
     QFile::copy(":/code/code/Spine.cpp",         temporaryDir->path() + "/spine-sketch/Spine.cpp");
-
+    QFile::copy(":/code/code/BMI088.h",          temporaryDir->path() + "/spine-sketch/BMI088.h");
 }
 
 void Codegen::loadModules()
@@ -205,7 +205,8 @@ void Codegen::generateSetup(QTextStream& stream, const char *spacename, const QS
 {
     if (QString::compare(deviceName, QString("No Device"), Qt::CaseInsensitive) != 0) {
         QString sn = moduleForName(deviceName).shortname.replace(" ", "-");
-        stream << "    " << "Spine.configSensor(" << spacename << "::connector, \"" << sn << "\", \"f\");";
+        int channels = moduleForName(deviceName).channels;
+        stream << "    " << "Spine.configSensor(" << spacename << "::connector, \"" << sn << "\", \"" << QString("f").repeated(channels) << "\");" << endl;
         stream << "    " << spacename << "::setup();" << endl;
     }
 }
@@ -301,6 +302,7 @@ void Codegen::generateCode()
     stream << "  if (elapsed < 10) {" << endl;
     stream << "      delay(10 - elapsed);" << endl;
     stream << "  }" << endl;
+    stream << "  lastMillis = millis();" << endl;
     stream << "}" << endl << endl;
 
     inoFile.close();

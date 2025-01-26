@@ -16,5 +16,6 @@
         <file>code/us-ranger.h</file>
         <file>code/Spine.cpp</file>
         <file>code/Spine.h</file>
+        <file>code/BMI088.h</file>
     </qresource>
 </RCC>

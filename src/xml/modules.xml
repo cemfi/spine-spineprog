@@ -260,6 +260,13 @@
 		<name>IMU 9DOF</name>
 		<shortname>IMU</shortname>
 	</device>
+    <device>
+        <channels>7</channels>
+        <code>BMI088.h</code>
+        <type>i2c</type>
+        <name>6-Axis Accel. and Gyro. (BMI088)</name>
+        <shortname>BMI088</shortname>
+    </device>
 	<device>
 		<channels>3</channels>
 		<code>gps.h</code>
