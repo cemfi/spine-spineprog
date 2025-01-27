@@ -41,6 +41,7 @@ Codegen::Codegen()
     QDir dir;
     dir.mkpath(temporaryDir->path() + "/spine-sketch");
 
+    /*
     // copy arduino code to temporary dir
     QFile::copy(":/code/code/accelerometer.h",   temporaryDir->path() + "/spine-sketch/accelerometer.h");
     QFile::copy(":/code/code/analog-generic.h",  temporaryDir->path() + "/spine-sketch/analog-generic.h");
@@ -52,6 +53,26 @@ Codegen::Codegen()
     QFile::copy(":/code/code/Spine.h",           temporaryDir->path() + "/spine-sketch/Spine.h");
     QFile::copy(":/code/code/Spine.cpp",         temporaryDir->path() + "/spine-sketch/Spine.cpp");
     QFile::copy(":/code/code/BMI088.h",          temporaryDir->path() + "/spine-sketch/BMI088.h");
+    */
+
+    QFile::copy(":/code/code/Spine.h",           temporaryDir->path() + "/spine-sketch/Spine.h");
+    QFile::copy(":/code/code/Spine.cpp",         temporaryDir->path() + "/spine-sketch/Spine.cpp");
+    QString sourceDir = ":/code/code/";
+    QString destDir = temporaryDir->path() + "/spine-sketch/";
+    for (const Module& module : modules) {
+        QString sourceFilePath = sourceDir + module.code;
+        QString destFilePath = destDir + module.code;
+
+        if (QFile::exists(destFilePath)) {
+            continue;
+        }
+
+        if (QFile::copy(sourceFilePath, destFilePath)) {
+            // qDebug() << "Copied:" << sourceFilePath << "to" << destFilePath;
+        } else {
+            qDebug() << "Failed to copy:" << sourceFilePath;
+        }
+    }
 }
 
 void Codegen::loadModules()
