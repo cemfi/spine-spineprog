@@ -41,22 +41,9 @@ Codegen::Codegen()
     QDir dir;
     dir.mkpath(temporaryDir->path() + "/spine-sketch");
 
-    /*
-    // copy arduino code to temporary dir
-    QFile::copy(":/code/code/accelerometer.h",   temporaryDir->path() + "/spine-sketch/accelerometer.h");
-    QFile::copy(":/code/code/analog-generic.h",  temporaryDir->path() + "/spine-sketch/analog-generic.h");
-    QFile::copy(":/code/code/digital-generic.h", temporaryDir->path() + "/spine-sketch/digital-generic.h");
-    QFile::copy(":/code/code/dummy.h",           temporaryDir->path() + "/spine-sketch/dummy.h");
-    QFile::copy(":/code/code/gps.h",             temporaryDir->path() + "/spine-sketch/gps.h");
-    QFile::copy(":/code/code/imu-9dof.h",        temporaryDir->path() + "/spine-sketch/imu-9dof.h");
-    QFile::copy(":/code/code/us-ranger.h",       temporaryDir->path() + "/spine-sketch/us-ranger.h");
     QFile::copy(":/code/code/Spine.h",           temporaryDir->path() + "/spine-sketch/Spine.h");
     QFile::copy(":/code/code/Spine.cpp",         temporaryDir->path() + "/spine-sketch/Spine.cpp");
-    QFile::copy(":/code/code/BMI088.h",          temporaryDir->path() + "/spine-sketch/BMI088.h");
-    */
 
-    QFile::copy(":/code/code/Spine.h",           temporaryDir->path() + "/spine-sketch/Spine.h");
-    QFile::copy(":/code/code/Spine.cpp",         temporaryDir->path() + "/spine-sketch/Spine.cpp");
     QString sourceDir = ":/code/code/";
     QString destDir = temporaryDir->path() + "/spine-sketch/";
     for (const Module& module : modules) {
