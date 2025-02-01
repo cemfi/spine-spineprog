@@ -17,5 +17,6 @@
         <file>code/Spine.cpp</file>
         <file>code/Spine.h</file>
         <file>code/BMI088.h</file>
+        <file>code/LSM303D.h</file>
     </qresource>
 </RCC>

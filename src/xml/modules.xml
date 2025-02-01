@@ -266,6 +266,13 @@
         <type>i2c</type>
         <name>6-Axis Accel. and Gyro. (BMI088)</name>
         <shortname>BMI088</shortname>
+    </device>    
+    <device>
+        <channels>7</channels>
+        <code>LSM303D.h</code>
+        <type>i2c</type>
+        <name>6-Axis Accel. and Compass (LSM303D)</name>
+        <shortname>LSM303D</shortname>
     </device>
     <device>
         <channels>3</channels>
