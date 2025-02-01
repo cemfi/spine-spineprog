@@ -1,277 +1,277 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <modules>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>Sound Sensor</name>
-		<shortname>Sound</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>Light Sensor</name>
-		<shortname>Light</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>Loudness</name>
-		<shortname>Loudness</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>UV Light</name>
-		<shortname>UV Light</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>Temperature Sensor</name>
-		<shortname>Temperature</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>digital-generic.h</code>
-		<type>digital</type>
-		<name>Water</name>
-		<shortname>Water</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>Rotary Angle Sensor</name>
-		<shortname>Rotary</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>Slide Potentiometer</name>
-		<shortname>Slide</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>digital-generic.h</code>
-		<type>digital</type>
-		<name>Tilt Switch</name>
-		<shortname>Tilt</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>Piezo Vibration</name>
-		<shortname>Vibration</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>IR Proximity Sensor</name>
-		<shortname>IR Proximity</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>UV Proximity</name>
-		<shortname>UV Proximity</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>digital-generic.h</code>
-		<type>digital</type>
-		<name>Switch</name>
-		<shortname>Switch</shortname>
-		<output>bool</output>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>digital-generic.h</code>
-		<type>digital</type>
-		<name>PIR Motion Sensor</name>
-		<shortname>Motion</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>digital-generic.h</code>
-		<type>digital</type>
-		<name>Touch Sensor</name>
-		<shortname>Touch</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>digital-generic.h</code>
-		<type>digital</type>
-		<name>Button</name>
-		<shortname>Button</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>GSR</name>
-		<shortname>GSR</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>digital-generic.h</code>
-		<type>digital</type>
-		<name>IR Distance Interrupter</name>
-		<shortname>Interrupter</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>EMG Detector</name>
-		<shortname>EMG</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>Luminance Sensor</name>
-		<shortname>Luminance</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>HCHO Sensor</name>
-		<shortname>HCHO</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>Gas Sensor (MQ-2/3/5/9)</name>
-		<shortname>Gas</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>Flame Sensor</name>
-		<shortname>Flame</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>Single Axis Analog Gyro</name>
-		<shortname>Gyro</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>digital-generic.h</code>
-		<type>digital</type>
-		<name>Digital Light Sensor</name>
-		<shortname>Light</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>Infrared Reflective Sensor</name>
-		<shortname>IR Reflective</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>digital-generic.h</code>
-		<type>digital</type>
-		<name>Collision Sensor</name>
-		<shortname>Collision</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>digital-generic.h</code>
-		<type>digital</type>
-		<name>Ear-clip Heart Rate Sensor</name>
-		<shortname>Heart Rate</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>digital-generic.h</code>
-		<type>digital</type>
-		<name>Hall Sensor</name>
-		<shortname>Hall</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>digital-generic.h</code>
-		<type>digital</type>
-		<name>Line Finder</name>
-		<shortname>Line</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>Electricity Sensor</name>
-		<shortname>Electricity</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>Alcohol Sensor</name>
-		<shortname>Alcohol</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>digital-generic.h</code>
-		<type>digital</type>
-		<name>Magnetic Switch</name>
-		<shortname>Magnetic</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>us-ranger.h</code>
-		<type>digital</type>
-		<name>Ultrasonic Ranger</name>
-		<shortname>US Ranger</shortname>
-	</device>
-	<device>
-		<channels>1</channels>
-		<code>analog-generic.h</code>
-		<type>analog</type>
-		<name>Moisture Sensor</name>
-		<shortname>Moisture</shortname>
-	</device>
-	<device>
-		<channels>3</channels>
-		<code>accelerometer.h</code>
-		<type>i2c</type>
-		<name>3-Axis Accelerometer (1.5g)</name>
-		<shortname>Accelerometer</shortname>
-	</device>
-	<device>
-		<channels>9</channels>
-		<code>imu-9dof.h</code>
-		<type>i2c</type>
-		<name>IMU 9DOF</name>
-		<shortname>IMU</shortname>
-	</device>
-	<device>
-		<channels>7</channels>
-		<code>BMI088.h</code>
-		<type>i2c</type>
-		<name>6-Axis Accel. and Gyro. (BMI088)</name>
-		<shortname>BMI088</shortname>
-	</device>
-	<device>
-		<channels>3</channels>
-		<code>gps.h</code>
-		<type>uart</type>
-		<name>GPS</name>
-		<shortname>GPS</shortname>
-	</device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>Sound Sensor</name>
+        <shortname>Sound</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>Light Sensor</name>
+        <shortname>Light</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>Loudness</name>
+        <shortname>Loudness</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>UV Light</name>
+        <shortname>UV Light</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>Temperature Sensor</name>
+        <shortname>Temperature</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>digital-generic.h</code>
+        <type>digital</type>
+        <name>Water</name>
+        <shortname>Water</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>Rotary Angle Sensor</name>
+        <shortname>Rotary</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>Slide Potentiometer</name>
+        <shortname>Slide</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>digital-generic.h</code>
+        <type>digital</type>
+        <name>Tilt Switch</name>
+        <shortname>Tilt</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>Piezo Vibration</name>
+        <shortname>Vibration</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>IR Proximity Sensor</name>
+        <shortname>IR Proximity</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>UV Proximity</name>
+        <shortname>UV Proximity</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>digital-generic.h</code>
+        <type>digital</type>
+        <name>Switch</name>
+        <shortname>Switch</shortname>
+        <output>bool</output>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>digital-generic.h</code>
+        <type>digital</type>
+        <name>PIR Motion Sensor</name>
+        <shortname>Motion</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>digital-generic.h</code>
+        <type>digital</type>
+        <name>Touch Sensor</name>
+        <shortname>Touch</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>digital-generic.h</code>
+        <type>digital</type>
+        <name>Button</name>
+        <shortname>Button</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>GSR</name>
+        <shortname>GSR</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>digital-generic.h</code>
+        <type>digital</type>
+        <name>IR Distance Interrupter</name>
+        <shortname>Interrupter</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>EMG Detector</name>
+        <shortname>EMG</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>Luminance Sensor</name>
+        <shortname>Luminance</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>HCHO Sensor</name>
+        <shortname>HCHO</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>Gas Sensor (MQ-2/3/5/9)</name>
+        <shortname>Gas</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>Flame Sensor</name>
+        <shortname>Flame</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>Single Axis Analog Gyro</name>
+        <shortname>Gyro</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>digital-generic.h</code>
+        <type>digital</type>
+        <name>Digital Light Sensor</name>
+        <shortname>Light</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>Infrared Reflective Sensor</name>
+        <shortname>IR Reflective</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>digital-generic.h</code>
+        <type>digital</type>
+        <name>Collision Sensor</name>
+        <shortname>Collision</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>digital-generic.h</code>
+        <type>digital</type>
+        <name>Ear-clip Heart Rate Sensor</name>
+        <shortname>Heart Rate</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>digital-generic.h</code>
+        <type>digital</type>
+        <name>Hall Sensor</name>
+        <shortname>Hall</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>digital-generic.h</code>
+        <type>digital</type>
+        <name>Line Finder</name>
+        <shortname>Line</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>Electricity Sensor</name>
+        <shortname>Electricity</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>Alcohol Sensor</name>
+        <shortname>Alcohol</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>digital-generic.h</code>
+        <type>digital</type>
+        <name>Magnetic Switch</name>
+        <shortname>Magnetic</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>us-ranger.h</code>
+        <type>digital</type>
+        <name>Ultrasonic Ranger</name>
+        <shortname>US Ranger</shortname>
+    </device>
+    <device>
+        <channels>1</channels>
+        <code>analog-generic.h</code>
+        <type>analog</type>
+        <name>Moisture Sensor</name>
+        <shortname>Moisture</shortname>
+    </device>
+    <device>
+        <channels>3</channels>
+        <code>accelerometer.h</code>
+        <type>i2c</type>
+        <name>3-Axis Accelerometer (1.5g)</name>
+        <shortname>Accelerometer</shortname>
+    </device>
+    <device>
+        <channels>9</channels>
+        <code>imu-9dof.h</code>
+        <type>i2c</type>
+        <name>IMU 9DOF</name>
+        <shortname>IMU</shortname>
+    </device>
+    <device>
+        <channels>7</channels>
+        <code>BMI088.h</code>
+        <type>i2c</type>
+        <name>6-Axis Accel. and Gyro. (BMI088)</name>
+        <shortname>BMI088</shortname>
+    </device>
+    <device>
+        <channels>3</channels>
+        <code>gps.h</code>
+        <type>uart</type>
+        <name>GPS</name>
+        <shortname>GPS</shortname>
+    </device>
 </modules>
